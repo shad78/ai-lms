@@ -18,7 +18,7 @@ const authTeacher = asyncHandler(async (req, res) => {
       token: generateToken(teacher._id),
     });
   } else {
-    res.status(401).json({ message: "Invalid email or password" });
+    res.status(401).json({ message: "Invalid teacher code or password" });
   }
 });
 
@@ -54,8 +54,8 @@ const registerTeacher = asyncHandler(async (req, res) => {
   }
 });
 
-//@desc Get user profile
-//@route GET /api/users/profile
+//@desc Get teacher profile
+//@route GET /api/teachers/profile
 //@access Private
 const getTeacherProfile = asyncHandler(async (req, res) => {
   const teacher = await Teacher.findById(req.teacher._id);
@@ -70,4 +70,39 @@ const getTeacherProfile = asyncHandler(async (req, res) => {
   }
 });
 
-export { authTeacher, registerTeacher, getTeacherProfile };
+//@desc Get All Teachers
+//@route GET /api/teachers/all
+//@access Private
+const getAllTeachers = asyncHandler(async (req, res) => {
+  const teachers = await Teacher.find().select("_id name code");
+  res.json(teachers);
+});
+
+//@desc update teacher profile
+//@route PUT /api/teachers/profile
+//@access Private
+const updateTeacherProfile = asyncHandler(async (req, res) => {
+  const teacher = await Teacher.findById(req.teacher._id);
+  if (teacher) {
+    if (req.body.password) {
+      teacher.password = req.body.password;
+    }
+    const updatedTeacher = await teacher.save();
+    res.json({
+      _id: teacher._id,
+      name: teacher.name,
+      code: teacher.code,
+      token: generateToken(teacher._id),
+    });
+  } else {
+    res.status(404).json({ message: "Teacher not found" });
+  }
+});
+
+export {
+  authTeacher,
+  registerTeacher,
+  getTeacherProfile,
+  updateTeacherProfile,
+  getAllTeachers,
+};

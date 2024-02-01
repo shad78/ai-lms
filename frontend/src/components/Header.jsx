@@ -1,13 +1,27 @@
 import React from "react";
-import { Navbar, Nav, Container, Image } from "react-bootstrap";
+import { Navbar, Nav, Container, Image, NavDropdown } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../redux/actions/teacherActions";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const teacherLogin = useSelector((state) => state.teacherLogin);
+  const { teacherInfo } = teacherLogin;
+
+  const logoutHandler = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
   return (
     <header>
       <Navbar expand="lg" bg="dark" variant="dark" collapseOnSelect>
         <Container>
-          <LinkContainer to="/">
+          <LinkContainer to={teacherInfo ? "/" : "/login"}>
             <Navbar.Brand>
               <Image
                 src="/images/home.png"
@@ -15,33 +29,35 @@ const Header = () => {
               />{" "}
             </Navbar.Brand>
           </LinkContainer>
+          {teacherInfo && (
+            <>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                <Nav className="mx-auto">
+                  <LinkContainer to="/" className="mx-1">
+                    <Nav.Link>
+                      <i className="fa-solid fa-house mx-1"></i> Home
+                    </Nav.Link>
+                  </LinkContainer>
 
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mx-auto">
-              <LinkContainer to="/" className="mx-1">
-                <Nav.Link>
-                  <i className="fa-solid fa-house mx-1"></i> Home
-                </Nav.Link>
-              </LinkContainer>
-              {/* <LinkContainer to="/past-eval" className="mx-1">
-                <Nav.Link>
-                  <i className="fa-solid fa-box-archive mx-1"></i> Past
-                  Evaluations
-                </Nav.Link>
-              </LinkContainer> */}
-              <LinkContainer to="/active-eval" className="mx-1">
-                <Nav.Link>
-                  <i className="fa-solid fa-marker mx-1"></i> Active Evaluation
-                </Nav.Link>
-              </LinkContainer>
-              <LinkContainer to="/profile" className="mx-1">
-                <Nav.Link>
-                  <i className="fa-solid fa-user mx-1"></i> My Profile
-                </Nav.Link>
-              </LinkContainer>
-            </Nav>
-          </Navbar.Collapse>
+                  <LinkContainer to="/active-eval" className="mx-1">
+                    <Nav.Link>
+                      <i className="fa-solid fa-marker mx-1"></i> Active
+                      Evaluation
+                    </Nav.Link>
+                  </LinkContainer>
+                  <NavDropdown title={teacherInfo.name} id="username">
+                    <LinkContainer to="/profile">
+                      <NavDropdown.Item>Profile</NavDropdown.Item>
+                    </LinkContainer>
+                    <NavDropdown.Item onClick={logoutHandler}>
+                      Logout
+                    </NavDropdown.Item>
+                  </NavDropdown>
+                </Nav>
+              </Navbar.Collapse>
+            </>
+          )}
         </Container>
       </Navbar>
     </header>

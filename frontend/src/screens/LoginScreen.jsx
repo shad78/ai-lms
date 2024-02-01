@@ -1,28 +1,48 @@
-import React, { useState } from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
-// import Message from "../components/Message";
+import React, { useEffect, useState } from "react";
+import { Form, Button } from "react-bootstrap";
+import Message from "../components/Message";
+import Loader from "../components/Loader";
 import FormContainer from "../components/FormContainer";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../redux/actions/teacherActions";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function LoginScreen() {
-  const [teacherCode, setTeacherCode] = useState();
-  const [password, setPassword] = useState();
+  const [teacherCode, setTeacherCode] = useState("");
+  const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const teacherLogin = useSelector((state) => state.teacherLogin);
+
+  const { loading, error, teacherInfo } = teacherLogin;
+
+  const redirect = location.search ? location.search.split("=")[1] : "";
+
+  useEffect(() => {
+    if (teacherInfo) {
+      navigate(`/${redirect}`);
+    }
+  }, [navigate, teacherInfo, redirect]);
 
   function submitHandler(e) {
-    // e.preventDefault();
-    // dispatch(login(email, password));
+    e.preventDefault();
+    dispatch(login(teacherCode, password));
   }
 
   return (
     <FormContainer>
       <h1>Sign In</h1>
-      {/* {error && <Message variant="danger">{error}</Message>}
-      {loading && <Loader />} */}
+      {error && <Message variant="danger">{error}</Message>}
+      {loading && <Loader />}
       <Form onSubmit={submitHandler}>
         <Form.Group controlId="email">
           <Form.Label>Teacher Code</Form.Label>
           <Form.Control
-            type="email"
-            placeholder="Enter Teacher Code (lowercase)"
+            type="text"
+            placeholder="Enter Teacher Code (uppercase)"
             value={teacherCode}
             onChange={(e) => setTeacherCode(e.target.value)}
           ></Form.Control>
@@ -41,14 +61,6 @@ export default function LoginScreen() {
           Sign In
         </Button>
       </Form>
-      <Row className="py-3">
-        <Col>
-          {/* New Customer?{" "} */}
-          {/* <Link to={redirect ? `/register?redirect=${redirect}` : "/register"}>
-            Register
-          </Link> */}
-        </Col>
-      </Row>
     </FormContainer>
   );
 }
